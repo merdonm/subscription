@@ -52,18 +52,27 @@ export const GetSubscriptionById = async (req, res, next) => {
 export const GetSubscriptionsByUserId = async (req, res, next) => {
   try {
     const userId = req.params.id;
-    if (userId !== req.user.id) {
+
+    // Authorization check
+    if (userId !== req.user.id.toString()) {
       const error = new Error("Unauthorized access");
-      error.status = 403;
+      error.statusCode = 403;
       throw error;
     }
+
     const subscriptions = await Subscription.find({ user: userId });
-    res.json({
-      status: "success",
-      data: subscriptions,
+
+    const formattedSubscriptions = subscriptions.map((sub) => ({
+      ...sub.toObject(),
+      role: "user",
+    }));
+
+    res.status(200).json({
+      success: true,
+      count: formattedSubscriptions.length,
+      data: formattedSubscriptions,
     });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -88,4 +97,9 @@ export const UpdateSubscription = async (req, res, next) => {
     console.log(error);
     next(error);
   }
+};
+
+export const DeleteSubscription = async (req, res, next) => {
+  try {
+  } catch (error) {}
 };
